@@ -1,7 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://bhc30bk5r6et5"]
+[gd_scene load_steps=7 format=3 uid="uid://bhc30bk5r6et5"]
 
 [ext_resource type="Script" path="res://Script/Player/player.gd" id="1_oiddf"]
 [ext_resource type="Script" path="res://Script/Player/camera.gd" id="2_tan48"]
+[ext_resource type="AudioStream" uid="uid://ds0lrt4eq35p" path="res://Sounds/player/jump.wav" id="3_4yp42"]
+[ext_resource type="AudioStream" uid="uid://bi3jwu570all5" path="res://Sounds/player/landing.wav" id="3_7tj21"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hymmo"]
 
@@ -22,3 +24,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 script = ExtResource("2_tan48")
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
+
+[node name="JumpSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_4yp42")
+volume_db = -38.743
+
+[node name="LandingSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_7tj21")
+volume_db = -10.667
