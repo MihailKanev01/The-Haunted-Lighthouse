@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://bj0qmgve6s5cr"]
+[gd_scene load_steps=9 format=3 uid="uid://bj0qmgve6s5cr"]
 
 [ext_resource type="PackedScene" uid="uid://bhc30bk5r6et5" path="res://Scenes/Player.tscn" id="1_jg8si"]
 [ext_resource type="PackedScene" uid="uid://how7twtkgs5l" path="res://Scenes/door.tscn" id="2_r4otq"]
@@ -24,6 +24,8 @@ volumetric_fog_gi_inject = 2.0
 volumetric_fog_anisotropy = 0.6
 volumetric_fog_length = 128.0
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_ixi0s"]
+
 [node name="Node3D" type="Node3D"]
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
@@ -42,3 +44,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8213, -4.76837e-07, 2.62759
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_wwqtc")
+
+[node name="geo" type="Node3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="geo"]
+shape = SubResource("BoxShape3D_ixi0s")
