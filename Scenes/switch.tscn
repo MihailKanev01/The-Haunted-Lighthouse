@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://butsmcsol1stt"]
+
+[ext_resource type="Script" path="res://Script/Object/switch.gd" id="1_8w3rp"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ri8uw"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_85fdu"]
+
+[node name="Switch" type="Node3D"]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+script = ExtResource("1_8w3rp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.05, 0, 0, 0)
+shape = SubResource("BoxShape3D_ri8uw")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.05, 0, 0, 0)
+mesh = SubResource("BoxMesh_85fdu")

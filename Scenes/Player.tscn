@@ -1,9 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://bhc30bk5r6et5"]
+[gd_scene load_steps=9 format=3 uid="uid://bhc30bk5r6et5"]
 
 [ext_resource type="Script" path="res://Script/Player/player.gd" id="1_oiddf"]
-[ext_resource type="Script" path="res://Script/Player/camera.gd" id="2_tan48"]
 [ext_resource type="AudioStream" uid="uid://ds0lrt4eq35p" path="res://Sounds/player/jump.wav" id="3_4yp42"]
 [ext_resource type="AudioStream" uid="uid://bi3jwu570all5" path="res://Sounds/player/landing.wav" id="3_7tj21"]
+[ext_resource type="Script" path="res://Script/Player/flashlight.gd" id="3_hu0s3"]
+[ext_resource type="AudioStream" uid="uid://bj62ygxqjebb3" path="res://Sounds/flashlight/flashlight_on.wav" id="5_m7x8x"]
+[ext_resource type="AudioStream" uid="uid://bimq4m326v1ad" path="res://Sounds/flashlight/assets_sounds_effects_player_flashlight_off.wav" id="6_pmlvg"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hymmo"]
 
@@ -21,9 +23,8 @@ mesh = SubResource("CapsuleMesh_ermgm")
 
 [node name="Head" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-script = ExtResource("2_tan48")
 
-[node name="Camera3D" type="Camera3D" parent="Head"]
+[node name="Camera" type="Camera3D" parent="Head"]
 
 [node name="JumpSound" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("3_4yp42")
@@ -32,3 +33,25 @@ volume_db = -38.743
 [node name="LandingSound" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("3_7tj21")
 volume_db = -10.667
+
+[node name="Hand" type="Node3D" parent="."]
+
+[node name="Flashlight" type="SpotLight3D" parent="Hand"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0, 0)
+light_color = Color(0.947865, 0.961644, 0.961507, 1)
+light_energy = 0.0
+light_volumetric_fog_energy = 1.5
+shadow_enabled = true
+shadow_opacity = 0.75
+shadow_blur = 5.0
+spot_range = 15.0
+spot_angle = 20.0
+script = ExtResource("3_hu0s3")
+metadata/toggle = false
+
+[node name="On" type="AudioStreamPlayer3D" parent="Hand/Flashlight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, 0)
+stream = ExtResource("5_m7x8x")
+
+[node name="Off" type="AudioStreamPlayer3D" parent="Hand/Flashlight"]
+stream = ExtResource("6_pmlvg")

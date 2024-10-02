@@ -1,44 +1,59 @@
 extends CharacterBody3D
 
+const WALKING_SPEED: float = 3.0
+const SPRINTING_SPEED: float = 6.0
+const CROUCHING_SPEED: float = 1.5
+const JUMP_VELOCITY: float = 4.5
+const GRAVITY: float = 12.5
+const CAMERA_SENSITIVITY: float = 0.25
+const CAMERA_ACCELERATION: float = 5.0
 
-const SPEED = 5.0
-const JUMP_VELOCITY = 4.5
-@onready var jump_sound = $JumpSound
-var was_in_air = false
-@onready var landing_sound = $LandingSound
-var interact_range = 3.0
-var interact_ray = RayCast3D.new()
+var current_speed: float = 0.0
+var head_y_axis: float = 0.0
+var camera_x_axis: float = 0.0
 
-func _ready():
-	add_child(interact_ray)
-	interact_ray.target_position = Vector3(0, 0, interact_range)
+@onready var head: Node3D = $Head
+@onready var camera: Camera3D = $Head/Camera
+@onready var hand: Node3D = $Hand
+@onready var flashlight: SpotLight3D = $Hand/Flashlight
 
-func _physics_process(delta: float) -> void:
-	if Input.is_action_just_pressed("Interact"):
-		interact_ray.force_raycast_update()
-		if interact_ray.is_colliding():
-			var collider = interact_ray.get_collider()
-			if collider.has_meta("open door"):
-				collider.open_door()
+func _ready() -> void:
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
-	if not is_on_floor():
-		velocity += get_gravity() * delta
-		was_in_air = true
-	elif was_in_air:
-		landing_sound.play()
-		was_in_air = false
+func _input(event) -> void:
+	if event is InputEventMouseMotion:
+		head_y_axis += event.relative.x * CAMERA_SENSITIVITY
+		camera_x_axis -= event.relative.y * CAMERA_SENSITIVITY
+		
+		camera_x_axis = clamp(camera_x_axis, -90, 90)
 
-	if Input.is_action_just_pressed("Jump") and is_on_floor():
+func _process(delta: float) -> void:
+	head.rotation.y = lerp(head.rotation.y, -deg_to_rad(head_y_axis), CAMERA_ACCELERATION * delta)
+	camera.rotation.x = lerp(camera.rotation.x, deg_to_rad(camera_x_axis), CAMERA_ACCELERATION * delta)
+	
+	hand.rotation.y = -deg_to_rad(head_y_axis)
+	flashlight.rotation.x = deg_to_rad(camera_x_axis)
+	
+	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
-		jump_sound.play()
-
-	var input_dir := Input.get_vector("Left", "Right", "Forward", "Backwards")
-	var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	if direction:
-		velocity.x = direction.x * SPEED
-		velocity.z = direction.z * SPEED
 	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
-		velocity.z = move_toward(velocity.z, 0, SPEED)
-
+		velocity.y -= GRAVITY * delta
+	
+	if Input.is_action_pressed("sprint") and !Input.is_action_pressed("crouch"):
+		current_speed = SPRINTING_SPEED
+	elif Input.is_action_pressed("crouch") and !Input.is_action_pressed("sprint"):
+		current_speed = CROUCHING_SPEED
+	else:
+		current_speed = WALKING_SPEED
+	
+	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+	var direction = (head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	if is_on_floor():
+		if direction:
+			velocity.x = direction.x * current_speed
+			velocity.z = direction.z * current_speed
+		else:
+			velocity.x = move_toward(velocity.x, 0, current_speed)
+			velocity.z = move_toward(velocity.z, 0, current_speed)
+	
 	move_and_slide()

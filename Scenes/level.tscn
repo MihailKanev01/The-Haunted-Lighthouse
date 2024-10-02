@@ -1,16 +1,42 @@
-[gd_scene load_steps=3 format=3 uid="uid://bj0qmgve6s5cr"]
+[gd_scene load_steps=7 format=3 uid="uid://bj0qmgve6s5cr"]
 
 [ext_resource type="PackedScene" uid="uid://bhc30bk5r6et5" path="res://Scenes/Player.tscn" id="1_jg8si"]
 [ext_resource type="PackedScene" uid="uid://how7twtkgs5l" path="res://Scenes/door.tscn" id="2_r4otq"]
+[ext_resource type="PackedScene" uid="uid://butsmcsol1stt" path="res://Scenes/switch.tscn" id="3_tht0t"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_u00wp"]
+sky_top_color = Color(0.129412, 0.0823529, 0.0117647, 1)
+sky_horizon_color = Color(0, 0, 0, 1)
+ground_bottom_color = Color(0, 0, 0, 1)
+ground_horizon_color = Color(0, 0, 0, 1)
+
+[sub_resource type="Sky" id="Sky_7xi0b"]
+sky_material = SubResource("ProceduralSkyMaterial_u00wp")
+
+[sub_resource type="Environment" id="Environment_wwqtc"]
+background_mode = 2
+sky = SubResource("Sky_7xi0b")
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.3
+volumetric_fog_albedo = Color(0.493545, 0.493546, 0.493546, 1)
+volumetric_fog_gi_inject = 2.0
+volumetric_fog_anisotropy = 0.6
+volumetric_fog_length = 128.0
 
 [node name="Node3D" type="Node3D"]
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 use_collision = true
-size = Vector3(20, 1, 20)
+size = Vector3(100, 1, 100)
 
 [node name="Player" parent="." instance=ExtResource("1_jg8si")]
 
 [node name="Door" parent="." instance=ExtResource("2_r4otq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.146834, 1.125, 4.23066)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.146834, 1.125, 45.332)
+
+[node name="Switch" parent="." instance=ExtResource("3_tht0t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8213, -4.76837e-07, 2.62759)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_wwqtc")
