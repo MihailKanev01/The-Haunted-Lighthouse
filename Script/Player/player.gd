@@ -28,7 +28,9 @@ var true_speed: float = WALKING_SPEED
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera
 @onready var hand: Node3D = $Hand
-@onready var flashlight: SpotLight3D = $Hand/Flashlight
+@onready var standing_flashlight: SpotLight3D = $Hand/StandingFlashlight
+@onready var crouching_flashlight: SpotLight3D = $Hand/CrouchingFlashlight
+@onready var crawling_flashlight: SpotLight3D = $Hand/CrawlingFlashlight
 @onready var footstep: AudioStreamPlayer3D = $Footstep
 @onready var animation_player: AnimationPlayer = $AnimationPlayer # Add a reference to AnimationPlayer
 
@@ -46,9 +48,10 @@ func _process(delta: float) -> void:
 	head.rotation.y = lerp(head.rotation.y, -deg_to_rad(head_y_axis), CAMERA_ACCELERATION * delta)
 	camera.rotation.x = lerp(camera.rotation.x, deg_to_rad(camera_x_axis), CAMERA_ACCELERATION * delta)
 	
+	# Flashlight control with head movement
 	hand.rotation.y = -deg_to_rad(head_y_axis)
-	flashlight.rotation.x = deg_to_rad(camera_x_axis)
-	
+	update_flashlight_direction()
+
 	# Handle jumping and gravity
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
@@ -105,6 +108,7 @@ func _process(delta: float) -> void:
 			velocity.x = move_toward(velocity.x, 0, true_speed)
 			velocity.z = move_toward(velocity.z, 0, true_speed)
 	
+	# Remove the argument here for Godot 4.x compatibility
 	move_and_slide()
 
 # Handle crouching, crawling, standing animations and collision shapes
@@ -118,12 +122,14 @@ func movement_state_change(change_type: String) -> void:
 			is_crouching = true
 			change_collision_shape_to("crouching")
 			is_crawling = false
+			enable_flashlight("crouching")
 			
 		"uncrouch":
 			$AnimationPlayer.play_backwards("StandingToCrouch")
 			is_crouching = false
 			is_crawling = false
 			change_collision_shape_to("standing")
+			enable_flashlight("standing")
 
 		"crawl":
 			if is_crouching:
@@ -133,33 +139,49 @@ func movement_state_change(change_type: String) -> void:
 			is_crouching = false
 			is_crawling = true
 			change_collision_shape_to("crawling")
+			enable_flashlight("crawling")
 
 		"uncrawl":
 			$AnimationPlayer.play_backwards("StandingToCrawl")
 			is_crawling = false
 			is_crouching = false
 			change_collision_shape_to("standing")
+			enable_flashlight("standing")
 
-#Change collision shapes for standing, crouch, crawl
+# Change collision shapes for standing, crouch, crawl
 func change_collision_shape_to(shape: String) -> void:
-	var standing_shape = $StandingCollisionShape
-	var crouching_shape = $CrouchingCollisionShape
-	var crawling_shape = $CrawlingCollisionShape
-
-	if standing_shape == null or crouching_shape == null or crawling_shape == null:
-		print("Collision shapes are missing!")
-		return  # Exit the function if any shapes are null
-
 	match shape:
 		"crouching":
-			crouching_shape.disabled = false
-			crawling_shape.disabled = true
-			standing_shape.disabled = true
+			$CrouchingCollisionShape.disabled = false
+			$CrawlingCollisionShape.disabled = true
+			$StandingCollisionShape.disabled = true
 		"standing":
-			standing_shape.disabled = false
-			crawling_shape.disabled = true
-			crouching_shape.disabled = true
+			$StandingCollisionShape.disabled = false
+			$CrawlingCollisionShape.disabled = true
+			$CrouchingCollisionShape.disabled = true
 		"crawling":
-			crawling_shape.disabled = false
-			standing_shape.disabled = true
-			crouching_shape.disabled = true
+			$CrawlingCollisionShape.disabled = false
+			$StandingCollisionShape.disabled = true
+			$CrouchingCollisionShape.disabled = true
+
+# Enable the correct flashlight based on movement state and disable others
+func enable_flashlight(state: String) -> void:
+	match state:
+		"crouching":
+			crouching_flashlight.visible = true
+			standing_flashlight.visible = false
+			crawling_flashlight.visible = false
+		"standing":
+			standing_flashlight.visible = true
+			crouching_flashlight.visible = false
+			crawling_flashlight.visible = false
+		"crawling":
+			crawling_flashlight.visible = true
+			standing_flashlight.visible = false
+			crouching_flashlight.visible = false
+
+# Update flashlight direction with the player's head movement
+func update_flashlight_direction() -> void:
+	crouching_flashlight.rotation.x = deg_to_rad(camera_x_axis)
+	standing_flashlight.rotation.x = deg_to_rad(camera_x_axis)
+	crawling_flashlight.rotation.x = deg_to_rad(camera_x_axis)
