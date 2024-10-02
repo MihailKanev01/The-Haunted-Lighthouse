@@ -1,6 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://how7twtkgs5l"]
-
-[ext_resource type="Script" path="res://Script/Object/door.gd" id="1_rflm1"]
+[gd_scene load_steps=3 format=3 uid="uid://how7twtkgs5l"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_jty64"]
 
@@ -10,7 +8,6 @@
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.125, 0)
 
 [node name="Body" type="StaticBody3D" parent="."]
-script = ExtResource("1_rflm1")
 
 [node name="Collision" type="CollisionShape3D" parent="Body"]
 transform = Transform3D(1.5, 0, 0, 0, 2.25, 0, 0, 0, 0.1, 0, 0, 0)
