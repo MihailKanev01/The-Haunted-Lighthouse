@@ -24,6 +24,7 @@ var step_interval: float = WALKING_STEP_INTERVAL # Default walking interval
 var is_crouching = false
 var is_crawling = false
 var true_speed: float = WALKING_SPEED
+var grounded = false
 
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera
@@ -33,6 +34,7 @@ var true_speed: float = WALKING_SPEED
 @onready var crawling_flashlight: SpotLight3D = $Hand/CrawlingFlashlight
 @onready var footstep: AudioStreamPlayer3D = $Footstep
 @onready var animation_player: AnimationPlayer = $AnimationPlayer # Add a reference to AnimationPlayer
+@onready var step_cast: ShapeCast3D = $StepCast
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -53,7 +55,7 @@ func _process(delta: float) -> void:
 	update_flashlight_direction()
 
 	# Handle jumping and gravity
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	if Input.is_action_just_pressed("jump") and is_grounded():
 		velocity.y = JUMP_VELOCITY
 	else:
 		velocity.y -= GRAVITY * delta
@@ -108,8 +110,40 @@ func _process(delta: float) -> void:
 			velocity.x = move_toward(velocity.x, 0, true_speed)
 			velocity.z = move_toward(velocity.z, 0, true_speed)
 	
-	# Remove the argument here for Godot 4.x compatibility
+	move(delta)
+
+# Movement function with step cast for grounding
+func move(delta: float):
+	step_cast.global_position.x = global_position.x + velocity.x * delta
+	step_cast.global_position.z = global_position.z + velocity.z * delta
+	
+	if is_grounded():
+		step_cast.target_position.y = -0.2
+	else:
+		step_cast.target_position.y = -0.45
+
+	var query = PhysicsShapeQueryParameters3D.new()
+	query.exclude = [self]
+	query.shape = step_cast.shape
+	query.transform = step_cast.global_transform
+	
+	var result = get_world_3d().direct_space_state.intersect_shape(query, 1)
+	
+	if !result:
+		step_cast.force_shapecast_update()
+
+	if step_cast.is_colliding() && velocity.y <= 0.0 && !result && step_cast.get_collision_normal(0).angle_to(Vector3.UP) < floor_max_angle:
+		global_position.y = step_cast.get_collision_point(0).y
+		velocity.y = 0.0
+		grounded = true
+	else:
+		grounded = false
+
 	move_and_slide()
+
+
+func is_grounded() -> bool:
+	return grounded or is_on_floor()
 
 # Handle crouching, crawling, standing animations and collision shapes
 func movement_state_change(change_type: String) -> void:

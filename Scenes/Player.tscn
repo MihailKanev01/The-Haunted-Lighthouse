@@ -95,6 +95,7 @@ height = 0.1
 
 [node name="Player" type="CharacterBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+floor_snap_length = 0.0
 script = ExtResource("1_oiddf")
 
 [node name="StandingCollisionShape" type="CollisionShape3D" parent="."]
@@ -199,3 +200,4 @@ disabled = true
 
 [node name="StepCast" type="ShapeCast3D" parent="."]
 shape = SubResource("CylinderShape3D_elm4l")
+target_position = Vector3(0, -0.9, 0)
